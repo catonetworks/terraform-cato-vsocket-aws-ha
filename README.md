@@ -4,6 +4,7 @@ Terraform module which an Aws Socket HA Site in the Cato Management Application 
 
 ## Usage
 
+```hcl
 module "vsocket-aws-ha" {
   source                         = "catonetworks/vsocket-aws-ha/cato"
   token                          = "xxxxxxx"
@@ -34,7 +35,7 @@ module "vsocket-aws-ha" {
   lan_subnet_id           = "subnet-12345abcde6789fg"
   lan_secondary_subnet_id = "subnet-12345abcde6789fg"
 }
-
+```
 
 ## Site Location Reference
 
