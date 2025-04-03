@@ -26,8 +26,8 @@ data "cato_accountSnapshotSite" "aws-site" {
 
 # AWS HA IAM role configuration
 resource "aws_iam_role" "cato_ha_role" {
-  name        = "Rgood-Cato-HA-Role"
-  description = "To allow EC2 route management"
+  name        = "${var.site_name}-Cato-HA-Role"
+  description = "To allow vSocket HA route management"
   assume_role_policy = jsonencode({
     Version = "2012-10-17",
     Statement = [{
@@ -42,7 +42,7 @@ resource "aws_iam_role" "cato_ha_role" {
 
 
 resource "aws_iam_policy" "cato_ha_policy" {
-  name = "Rgood-Cato-HA-Role-Policy"
+  name = "${var.site_name}-Cato-HA-Role-Policy"
   policy = jsonencode({
     Version = "2012-10-17",
     Statement = [
@@ -66,7 +66,7 @@ resource "aws_iam_role_policy_attachment" "cato_ha_attach" {
 }
 
 resource "aws_iam_instance_profile" "cato_ha_instance_profile" {
-  name = "Rgood-Cato-HA-Role"
+  name = "${var.site_name}-Cato-HA-Role"
   role = aws_iam_role.cato_ha_role.name
 }
 
@@ -74,12 +74,7 @@ resource "aws_iam_instance_profile" "cato_ha_instance_profile" {
 resource "aws_internet_gateway" "gw" {
   vpc_id = var.vpc_id
   tags = {
-    Name = "rgood_ig"
-  }
-  lifecycle {
-    ignore_changes = [
-      tags,
-    ]
+    Name = "${var.site_name}-Internet-Gateway"
   }
 }
 
@@ -125,32 +120,17 @@ resource "aws_instance" "primary_vsocket" {
     volume_type = var.ebs_disk_type
   }
   tags = merge(var.tags, {
-    Name = "${var.site_name}-vSocket"
+    Name = "${var.site_name}-vSocket-Primary"
   })
-  lifecycle {
-    ignore_changes = [
-      tags,
-    ]
-  }
   depends_on = [aws_route_table_association.lan_secondary_subnet_association]
 }
 
 resource "aws_eip" "mgmt_eip" {
   domain            = "vpc"
-  lifecycle {
-    ignore_changes = [
-      tags,
-    ]
-  }
 }
 
 resource "aws_eip" "wan_eip" {
   domain            = "vpc"
-  lifecycle {
-    ignore_changes = [
-      tags,
-    ]
-  }
 }
 
 # Elastic IP Addresses Association - Required to properly destroy 
@@ -211,7 +191,7 @@ resource "null_resource" "sleep_300_seconds" {
 }
 
 #################################################################################
-# Add secondary socket to site via API until socket_site resrouce is updated to natively support
+# Add secondary socket to site via API until socket_site resource is updated to natively support
 resource "null_resource" "configure_secondary_aws_vsocket" {
   depends_on = [null_resource.sleep_300_seconds]
 
@@ -304,30 +284,15 @@ resource "aws_instance" "vSocket_Secondary" {
   tags = merge(var.tags, {
     Name = "${var.site_name}-vSocket-Secondary"
   })
-  lifecycle {
-    ignore_changes = [
-      tags,
-    ]
-  }
   depends_on = [null_resource.sleep_10_seconds]
 }
 
 resource "aws_eip" "secondary_mgmt_eip" {
   domain            = "vpc"
-  lifecycle {
-    ignore_changes = [
-      tags,
-    ]
-  }
 }
 
 resource "aws_eip" "secondary_wan_eip" {
   domain            = "vpc"
-  lifecycle {
-    ignore_changes = [
-      tags,
-    ]
-  }
 }
 
 # Elastic IP Addresses Association - Required to properly destroy 
