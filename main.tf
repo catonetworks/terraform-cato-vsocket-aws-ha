@@ -26,7 +26,7 @@ data "cato_accountSnapshotSite" "aws-site" {
 
 # AWS HA IAM role configuration
 resource "aws_iam_role" "cato_ha_role" {
-  name        = "${var.site_name}-Cato-HA-Role"
+  name        = "Cato-HA-Role"
   description = "To allow vSocket HA route management"
   assume_role_policy = jsonencode({
     Version = "2012-10-17",
@@ -42,7 +42,7 @@ resource "aws_iam_role" "cato_ha_role" {
 
 
 resource "aws_iam_policy" "cato_ha_policy" {
-  name = "${var.site_name}-Cato-HA-Role-Policy"
+  name = "Cato-HA-Role-Policy"
   policy = jsonencode({
     Version = "2012-10-17",
     Statement = [
@@ -66,7 +66,7 @@ resource "aws_iam_role_policy_attachment" "cato_ha_attach" {
 }
 
 resource "aws_iam_instance_profile" "cato_ha_instance_profile" {
-  name = "${var.site_name}-Cato-HA-Role"
+  name = "Cato-HA-Role"
   role = aws_iam_role.cato_ha_role.name
 }
 
