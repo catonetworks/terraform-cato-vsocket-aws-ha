@@ -1,4 +1,3 @@
-## Cato provider variables
 variable "baseurl" {
   description = "Cato API base URL"
   type        = string
@@ -26,7 +25,7 @@ variable "site_name" {
   description = "Your Cato Site Name Here"
 }
 
-variable "native_network_range" {
+variable "native_network_range_primary" {
   type        = string
   description = <<EOT
   	Choose the unique network range your vpc is configured with for your socket that does not conflict with the rest of your Wide Area Network.
@@ -34,7 +33,7 @@ variable "native_network_range" {
 	EOT
 }
 
-variable "secondary_native_network_range" {
+variable "native_network_range_secondary" {
   type        = string
   description = <<EOT
   	Choose the unique network range your vpc is configured with for your socket that does not conflict with the rest of your Wide Area Network.
@@ -66,6 +65,12 @@ variable "site_location" {
 variable "vpc_id" {
   description = "VPC ID"
   type        = string
+}
+
+variable "internet_gateway_id" {
+  description = "Specify an Internet Gateway ID to use. If not specified, a new Internet Gateway will be created."
+  type        = string
+  default     = null
 }
 
 variable "connection_type" {
@@ -107,42 +112,42 @@ variable "region" {
   type        = string
 }
 
-variable "mgmt_eni_id" {
+variable "mgmt_eni_primary_id" {
   description = "Managent Elastic Network Interface ID, network interface connected public to a subnet with routable access to the internet to access the internet and the Cato SASE cloud platform. Example: eni-abcde12345abcde12345"
   type        = string
 }
 
-variable "wan_eni_id" {
+variable "wan_eni_primary_id" {
   description = "WAN Elastic Network Interface ID, network interface connected to a public subnet with routable access to the internet to access the internet and the Cato SASE cloud platform. Example: eni-abcde12345abcde12345"
   type        = string
 }
 
-variable "lan_eni_id" {
+variable "lan_eni_primary_id" {
   description = "LAN Elastic Network Interface ID, network interface connected to a private subnet for local VPC resources to connect to for access to internet and WAN access through the Cato socket. Example: eni-abcde12345abcde12345"
   type        = string
 }
 
-variable "secondary_mgmt_eni_id" {
+variable "mgmt_eni_secondary_id" {
   description = "Managent Elastic Network Interface ID, network interface connected public to a subnet with routable access to the internet to access the internet and the Cato SASE cloud platform. Example: eni-abcde12345abcde12345"
   type        = string
 }
 
-variable "secondary_wan_eni_id" {
+variable "wan_eni_secondary_id" {
   description = "WAN Elastic Network Interface ID, network interface connected to a public subnet with routable access to the internet to access the internet and the Cato SASE cloud platform. Example: eni-abcde12345abcde12345"
   type        = string
 }
 
-variable "secondary_lan_eni_id" {
+variable "lan_eni_secondary_id" {
   description = "LAN Elastic Network Interface ID, network interface connected to a private subnet for local VPC resources to connect to for access to internet and WAN access through the Cato socket. Example: eni-abcde12345abcde12345"
   type        = string
 }
 
-variable "lan_local_ip" {
+variable "lan_local_primary_ip" {
   description = "Choose an IP Address within the LAN Subnet. You CANNOT use the first four assignable IP addresses within the subnet as it's reserved for the AWS virtual router interface used as the default route for private resources to gain access to WAN and internet. The accepted input format is X.X.X.X"
   type        = string
 }
 
-variable "lan_secondary_local_ip" {
+variable "lan_local_secondary_ip" {
   description = "Choose an IP Address within the Secodnary LAN Subnet. You CANNOT use the first four assignable IP addresses within the subnet as it's reserved for the AWS virtual router interface used as the default route for private resources to gain access to WAN and internet. The accepted input format is X.X.X.X"
   type        = string
 }
@@ -163,12 +168,19 @@ variable "mgmt_subnet_id" {
   type        = string
 }
 
-variable "lan_subnet_id" {
+variable "lan_subnet_primary_id" {
   description = "Lan Subnet ID"
   type        = string
 }
 
-variable "lan_secondary_subnet_id" {
+variable "lan_subnet_secondary_id" {
   description = "lan secondary Subnet ID"
   type        = string
 }
+
+variable "lan_route_table_id" {
+  description = "LAN route table id"
+  type        = string
+}
+
+

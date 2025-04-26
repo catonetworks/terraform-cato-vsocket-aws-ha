@@ -1,20 +1,10 @@
-provider "aws" {
-  region = var.region
-}
-
-provider "cato" {
-  baseurl    = var.baseurl
-  token      = var.token
-  account_id = var.account_id
-}
-
 resource "cato_socket_site" "aws-site" {
   connection_type = var.connection_type
   description     = var.site_description
   name            = var.site_name
   native_range = {
-    native_network_range = var.native_network_range
-    local_ip             = var.lan_local_ip
+    native_network_range = var.native_network_range_primary
+    local_ip             = var.lan_local_primary_ip
   }
   site_location = var.site_location
   site_type     = var.site_type
@@ -40,7 +30,6 @@ resource "aws_iam_role" "cato_ha_role" {
   })
 }
 
-
 resource "aws_iam_policy" "cato_ha_policy" {
   name = "Cato-HA-Role-Policy"
   policy = jsonencode({
@@ -59,7 +48,6 @@ resource "aws_iam_policy" "cato_ha_policy" {
   })
 }
 
-
 resource "aws_iam_role_policy_attachment" "cato_ha_attach" {
   role       = aws_iam_role.cato_ha_role.name
   policy_arn = aws_iam_policy.cato_ha_policy.arn
@@ -69,15 +57,6 @@ resource "aws_iam_instance_profile" "cato_ha_instance_profile" {
   name = "Cato-HA-Role"
   role = aws_iam_role.cato_ha_role.name
 }
-
-# Internet Gateway
-resource "aws_internet_gateway" "gw" {
-  vpc_id = var.vpc_id
-  tags = {
-    Name = "${var.site_name}-Internet-Gateway"
-  }
-}
-
 
 ## Lookup data from region and VPC
 data "aws_ami" "vsocket" {
@@ -102,17 +81,17 @@ resource "aws_instance" "primary_vsocket" {
   # MGMTENI
   network_interface {
     device_index         = 0
-    network_interface_id = var.mgmt_eni_id
+    network_interface_id = var.mgmt_eni_primary_id
   }
   # WANENI
   network_interface {
     device_index         = 1
-    network_interface_id = var.wan_eni_id
+    network_interface_id = var.wan_eni_primary_id
   }
   # LANENI
   network_interface {
     device_index         = 2
-    network_interface_id = var.lan_eni_id
+    network_interface_id = var.lan_eni_primary_id
   }
   ebs_block_device {
     device_name = "/dev/sda1"
@@ -122,64 +101,6 @@ resource "aws_instance" "primary_vsocket" {
   tags = merge(var.tags, {
     Name = "${var.site_name}-vSocket-Primary"
   })
-  depends_on = [aws_route_table_association.lan_secondary_subnet_association]
-}
-
-resource "aws_eip" "mgmt_eip" {
-  domain            = "vpc"
-}
-
-resource "aws_eip" "wan_eip" {
-  domain            = "vpc"
-}
-
-# Elastic IP Addresses Association - Required to properly destroy 
-resource "aws_eip_association" "primary_mgmt_eip_assoc" {
-  network_interface_id = var.mgmt_eni_id
-  allocation_id        = aws_eip.wan_eip.id
-}
-
-resource "aws_eip_association" "primary_wan_eip_assoc" {
-  network_interface_id = var.wan_eni_id
-  allocation_id        = aws_eip.mgmt_eip.id
-}
-
-# Route tables for MGMT, WAN and both LAN subnets
-resource "aws_route_table" "route_table" {
-  vpc_id = var.vpc_id
-  route {
-    cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.gw.id
-  }
-}
-
-resource "aws_route_table" "route_table_lan" {
-  vpc_id = var.vpc_id
-  route {
-    cidr_block           = "0.0.0.0/0"
-    network_interface_id = var.lan_eni_id
-  }
-}
-
-# Route table associations
-resource "aws_route_table_association" "wan_subnet_association" {
-  subnet_id      = var.wan_subnet_id
-  route_table_id = aws_route_table.route_table.id
-}
-
-resource "aws_route_table_association" "mgmt_subnet_association" {
-  subnet_id      = var.mgmt_subnet_id
-  route_table_id = aws_route_table.route_table.id
-}
-
-resource "aws_route_table_association" "lan_subnet_association" {
-  subnet_id      = var.lan_subnet_id
-  route_table_id = aws_route_table.route_table_lan.id
-}
-
-resource "aws_route_table_association" "lan_secondary_subnet_association" {
-  subnet_id      = var.lan_secondary_subnet_id
-  route_table_id = aws_route_table.route_table_lan.id
 }
 
 # To allow socket to upgrade so secondary socket can be added
@@ -208,9 +129,9 @@ resource "null_resource" "configure_secondary_aws_vsocket" {
           "variables": {
             "accountId": "${var.account_id}",
             "addSecondaryAwsVSocketInput": {
-              "eniIpAddress": "${var.lan_secondary_local_ip}",
-              "eniIpSubnet": "${var.secondary_native_network_range}",
-               "routeTableId": "${aws_route_table.route_table_lan.id}",
+              "eniIpAddress": "${var.lan_local_secondary_ip}",
+              "eniIpSubnet": "${var.native_network_range_secondary}",
+               "routeTableId": "${var.lan_route_table_id}",
               "site": {
                 "by": "ID",
                 "input": "${cato_socket_site.aws-site.id}"
@@ -228,7 +149,6 @@ resource "null_resource" "configure_secondary_aws_vsocket" {
   }
 }
 
-
 # Retrieve Secondary vSocket Virtual Machine serial
 data "cato_accountSnapshotSite" "aws-site-secondary" {
   depends_on = [ null_resource.configure_secondary_aws_vsocket ]
@@ -240,9 +160,9 @@ locals {
 }
 
 # Sleep to allow Secondary vSocket serial retrieval
-resource "null_resource" "sleep_10_seconds" {
+resource "null_resource" "sleep_30_seconds" {
   provisioner "local-exec" {
-    command = "sleep 10"
+    command = "sleep 30"
   }
   depends_on = [ data.cato_accountSnapshotSite.aws-site-secondary ]
 }
@@ -264,17 +184,17 @@ resource "aws_instance" "vSocket_Secondary" {
   # MGMTENI
   network_interface {
     device_index         = 0
-    network_interface_id = var.secondary_mgmt_eni_id
+    network_interface_id = var.mgmt_eni_secondary_id
   }
   # WANENI
   network_interface {
     device_index         = 1
-    network_interface_id = var.secondary_wan_eni_id
+    network_interface_id = var.wan_eni_secondary_id
   }
   # LANENI
   network_interface {
     device_index         = 2
-    network_interface_id = var.secondary_lan_eni_id
+    network_interface_id = var.lan_eni_secondary_id
   }
   ebs_block_device {
     device_name = "/dev/sda1"
@@ -284,24 +204,5 @@ resource "aws_instance" "vSocket_Secondary" {
   tags = merge(var.tags, {
     Name = "${var.site_name}-vSocket-Secondary"
   })
-  depends_on = [null_resource.sleep_10_seconds]
-}
-
-resource "aws_eip" "secondary_mgmt_eip" {
-  domain            = "vpc"
-}
-
-resource "aws_eip" "secondary_wan_eip" {
-  domain            = "vpc"
-}
-
-# Elastic IP Addresses Association - Required to properly destroy 
-resource "aws_eip_association" "secondary_mgmt_eip_assoc" {
-  network_interface_id = var.secondary_mgmt_eni_id
-  allocation_id        = aws_eip.secondary_wan_eip.id
-}
-
-resource "aws_eip_association" "secondary_wan_eip_assoc" {
-  network_interface_id = var.secondary_wan_eni_id
-  allocation_id        = aws_eip.secondary_mgmt_eip.id
+  depends_on = [null_resource.sleep_30_seconds]
 }
