@@ -5,6 +5,25 @@ Terraform module which an Aws Socket HA Site in the Cato Management Application 
 ## Usage
 
 ```hcl
+// Use data source to look up site_l_ocation
+data "cato_siteLocation" "ny" {
+  filters = [{
+    field = "city"
+    search = "New York"
+    operation = "startsWith"
+  },
+  {
+    field = "state_name"
+    search = "New York"
+    operation = "exact"
+  },
+ {
+    field = "country_name"
+    search = "United"
+    operation = "contains"
+  }]
+}
+
 module "vsocket-aws-ha" {
   source                         = "catonetworks/vsocket-aws-ha/cato"
   token                          = "xxxxxxx"
@@ -25,10 +44,10 @@ module "vsocket-aws-ha" {
   site_name                      = "Your-Cato-site-name-here"
   site_description               = "Your Cato site desc here"
   site_location = {
-    city         = "Aarau"
-    country_code = "CH"
-    state_code   = null
-    timezone     = "Europe/Zurich"
+    city = data.cato_siteLocation.ny.locations[1].city
+    country_code = data.cato_siteLocation.ny.locations[1].country_code
+    state_code = data.cato_siteLocation.ny.locations[1].state_code
+    timezone = data.cato_siteLocation.ny.locations[1].timezone[0]
   }
   wan_subnet_id           = "subnet-12345abcde6789fg"
   mgmt_subnet_id          = "subnet-12345abcde6789fg"
