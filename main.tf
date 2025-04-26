@@ -118,7 +118,7 @@ resource "null_resource" "configure_secondary_aws_vsocket" {
 
   provisioner "local-exec" {
     command = <<EOF
-      # Execute the GraphQL mutation to get the site id
+      # Execute the GraphQL mutation to get add the secondary vSocket
       response=$(curl -k -X POST \
         -H "Accept: application/json" \
         -H "Content-Type: application/json" \

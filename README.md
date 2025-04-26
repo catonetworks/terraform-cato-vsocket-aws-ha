@@ -5,6 +5,16 @@ Terraform module which an Aws Socket HA Site in the Cato Management Application 
 ## Usage
 
 ```hcl
+provider "aws" {
+  region = var.region
+}
+
+provider "cato" {
+  baseurl    = var.baseurl
+  token      = var.cato_token
+  account_id = var.account_id
+}
+
 // Use data source to look up site_l_ocation
 data "cato_siteLocation" "ny" {
   filters = [{
