@@ -38,31 +38,38 @@ module "vsocket-aws-ha" {
   source                         = "catonetworks/vsocket-aws-ha/cato"
   token                          = "xxxxxxx"
   account_id                     = "xxxxxxx"
-  vpc_id                         = "vpc-12345abcde6789fg"
+  internet_gateway_id            = "igw-0a1b2c3d4e5f6g7h8"
+  vpc_id                         = "vpc-xxxxxxxxxxxxxxxx"
   key_pair                       = "Your key pair"
-  native_network_range           = "172.19.102.0/24"
-  secondary_native_network_range = "172.19.103.0/24"
   region                         = "eu-north-1"
-  mgmt_eni_id                    = "eni-12345abcde6789fg"
-  wan_eni_id                     = "eni-12345abcde6789fg"
-  lan_eni_id                     = "eni-12345abcde6789fg"
-  secondary_mgmt_eni_id          = "eni-12345abcde6789fg"
-  secondary_wan_eni_id           = "eni-12345abcde6789fg6"
-  secondary_lan_eni_id           = "eni-012345abcde6789fg"
-  lan_local_ip                   = "172.19.102.5"
-  lan_secondary_local_ip         = "172.19.103.5"
   site_name                      = "Your-Cato-site-name-here"
-  site_description               = "Your Cato site desc here"
+  site_description               = "Your Cato site Description here"
+  site_type                      = "CLOUD_DC"
+  native_network_range_primary   = "10.32.3.0/24"
+  native_network_range_secondary = "10.32.4.0/24"
+  mgmt_subnet_id                 = "subnet-xxxxxxxxxxxxxxxx"
+  wan_subnet_id                  = "subnet-xxxxxxxxxxxxxxxx"
+  lan_local_primary_ip           = "10.32.3.5"
+  lan_local_secondary_ip         = "10.32.4.5"
+  lan_subnet_primary_id          = "subnet-xxxxxxxxxxxxxxxx"
+  lan_subnet_secondary_id        = "subnet-xxxxxxxxxxxxxxxx"
+  mgmt_eni_primary_id            = "eni-xxxxxxxxxxxxxxxx"
+  wan_eni_primary_id             = "eni-xxxxxxxxxxxxxxxx"
+  lan_eni_primary_id             = "eni-xxxxxxxxxxxxxxxx"
+  mgmt_eni_secondary_id          = "eni-xxxxxxxxxxxxxxxx"
+  wan_eni_secondary_id           = "eni-xxxxxxxxxxxxxxxx"
+  lan_eni_secondary_id           = "eni-xxxxxxxxxxxxxxxx"
+  lan_route_table_id             = "rtb-xxxxxxxxxxxxxxxx"
   site_location = {
     city = data.cato_siteLocation.ny.locations[1].city
     country_code = data.cato_siteLocation.ny.locations[1].country_code
     state_code = data.cato_siteLocation.ny.locations[1].state_code
     timezone = data.cato_siteLocation.ny.locations[1].timezone[0]
   }
-  wan_subnet_id           = "subnet-12345abcde6789fg"
-  mgmt_subnet_id          = "subnet-12345abcde6789fg"
-  lan_subnet_id           = "subnet-12345abcde6789fg"
-  lan_secondary_subnet_id = "subnet-12345abcde6789fg"
+  tags                           = {
+    TagName1  = "Tag Value 1"
+    TagName2  = "Tag Value 2"
+  }
 }
 ```
 
