@@ -67,12 +67,6 @@ variable "vpc_id" {
   type        = string
 }
 
-variable "internet_gateway_id" {
-  description = "Specify an Internet Gateway ID to use. If not specified, a new Internet Gateway will be created."
-  type        = string
-  default     = null
-}
-
 variable "connection_type" {
   description = "Model of Cato vsocket"
   type        = string
@@ -104,7 +98,6 @@ variable "instance_type" {
 variable "key_pair" {
   description = "Name of an existing Key Pair for AWS encryption"
   type        = string
-  default     = "your-key-pair-name-here"
 }
 
 variable "region" {
