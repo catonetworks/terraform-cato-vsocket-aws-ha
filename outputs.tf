@@ -9,3 +9,11 @@ output "aws_availability_zones" { value = data.aws_availability_zones.available.
 output "aws_instance_id" { value = aws_instance.primary_vsocket.id }
 output "cato_account_snapshot_site_secondary_id" { value = data.cato_accountSnapshotSite.aws-site-secondary.id }
 output "aws_instance_vSocket_Secondary_id" { value = aws_instance.vSocket_Secondary.id }
+output "cato_license_site" {
+  value = var.license_id == null ? null : {
+    id           = cato_license.license[0].id
+    license_id   = cato_license.license[0].license_id
+    license_info = cato_license.license[0].license_info
+    site_id      = cato_license.license[0].site_id
+  }
+}

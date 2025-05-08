@@ -2,6 +2,11 @@
 
 Terraform module which an Aws Socket HA Site in the Cato Management Application (CMA), and deploys a primary and secondary virtual socket EC2 instance in Aws and configures them as HA.
 
+## NOTE
+- For help with finding exact sytax to match site location for city, state_name, country_name and timezone, please refer to the [cato_siteLocation data source](https://registry.terraform.io/providers/catonetworks/cato/latest/docs/data-sources/siteLocation).
+- For help with finding a license id to assign, please refer to the [cato_licensingInfo data source](https://registry.terraform.io/providers/catonetworks/cato/latest/docs/data-sources/licensingInfo).
+
+
 ## Usage
 
 ```hcl
@@ -13,25 +18,6 @@ provider "cato" {
   baseurl    = var.baseurl
   token      = var.cato_token
   account_id = var.account_id
-}
-
-// Use data source to look up site_l_ocation
-data "cato_siteLocation" "ny" {
-  filters = [{
-    field = "city"
-    search = "New York"
-    operation = "startsWith"
-  },
-  {
-    field = "state_name"
-    search = "New York"
-    operation = "exact"
-  },
- {
-    field = "country_name"
-    search = "United"
-    operation = "contains"
-  }]
 }
 
 module "vsocket-aws-ha" {
@@ -61,10 +47,10 @@ module "vsocket-aws-ha" {
   lan_eni_secondary_id           = "eni-xxxxxxxxxxxxxxxx"
   lan_route_table_id             = "rtb-xxxxxxxxxxxxxxxx"
   site_location = {
-    city = data.cato_siteLocation.ny.locations[1].city
-    country_code = data.cato_siteLocation.ny.locations[1].country_code
-    state_code = data.cato_siteLocation.ny.locations[1].state_code
-    timezone = data.cato_siteLocation.ny.locations[1].timezone[0]
+    city         = "New York City"
+    country_code = "US"
+    state_code   = "US-NY" ## Optional - for countries with states"
+    timezone     = "America/New_York"
   }
   tags                           = {
     TagName1  = "Tag Value 1"
@@ -122,6 +108,7 @@ No modules.
 | [aws_iam_role_policy_attachment.cato_ha_attach](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
 | [aws_instance.primary_vsocket](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/instance) | resource |
 | [aws_instance.vSocket_Secondary](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/instance) | resource |
+| [cato_license.license](https://registry.terraform.io/providers/catonetworks/cato/latest/docs/resources/license) | resource |
 | [cato_socket_site.aws-site](https://registry.terraform.io/providers/catonetworks/cato/latest/docs/resources/socket_site) | resource |
 | [null_resource.configure_secondary_aws_vsocket](https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource) | resource |
 | [null_resource.sleep_300_seconds](https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource) | resource |
@@ -149,6 +136,8 @@ No modules.
 | <a name="input_lan_route_table_id"></a> [lan\_route\_table\_id](#input\_lan\_route\_table\_id) | LAN route table id | `string` | n/a | yes |
 | <a name="input_lan_subnet_primary_id"></a> [lan\_subnet\_primary\_id](#input\_lan\_subnet\_primary\_id) | Lan Subnet ID | `string` | n/a | yes |
 | <a name="input_lan_subnet_secondary_id"></a> [lan\_subnet\_secondary\_id](#input\_lan\_subnet\_secondary\_id) | lan secondary Subnet ID | `string` | n/a | yes |
+| <a name="input_license_bw"></a> [license\_bw](#input\_license\_bw) | The license bandwidth number for the cato site, specifying bandwidth ONLY applies for pooled licenses.  For a standard site license that is not pooled, leave this value null. Must be a number greater than 0 and an increment of 10. | `string` | `null` | no |
+| <a name="input_license_id"></a> [license\_id](#input\_license\_id) | The license ID for the Cato vSocket of license type CATO\_SITE, CATO\_SSE\_SITE, CATO\_PB, CATO\_PB\_SSE.  Example License ID value: 'abcde123-abcd-1234-abcd-abcde1234567'.  Note that licenses are for commercial accounts, and not supported for trial accounts. | `string` | `null` | no |
 | <a name="input_mgmt_eni_primary_id"></a> [mgmt\_eni\_primary\_id](#input\_mgmt\_eni\_primary\_id) | Managent Elastic Network Interface ID, network interface connected public to a subnet with routable access to the internet to access the internet and the Cato SASE cloud platform. Example: eni-abcde12345abcde12345 | `string` | n/a | yes |
 | <a name="input_mgmt_eni_secondary_id"></a> [mgmt\_eni\_secondary\_id](#input\_mgmt\_eni\_secondary\_id) | Managent Elastic Network Interface ID, network interface connected public to a subnet with routable access to the internet to access the internet and the Cato SASE cloud platform. Example: eni-abcde12345abcde12345 | `string` | n/a | yes |
 | <a name="input_mgmt_subnet_id"></a> [mgmt\_subnet\_id](#input\_mgmt\_subnet\_id) | Mgmt Subnet ID | `string` | n/a | yes |
@@ -177,6 +166,7 @@ No modules.
 | <a name="output_aws_instance_id"></a> [aws\_instance\_id](#output\_aws\_instance\_id) | n/a |
 | <a name="output_aws_instance_vSocket_Secondary_id"></a> [aws\_instance\_vSocket\_Secondary\_id](#output\_aws\_instance\_vSocket\_Secondary\_id) | n/a |
 | <a name="output_cato_account_snapshot_site_secondary_id"></a> [cato\_account\_snapshot\_site\_secondary\_id](#output\_cato\_account\_snapshot\_site\_secondary\_id) | n/a |
+| <a name="output_cato_license_site"></a> [cato\_license\_site](#output\_cato\_license\_site) | n/a |
 | <a name="output_secondary_socket_site_serial"></a> [secondary\_socket\_site\_serial](#output\_secondary\_socket\_site\_serial) | n/a |
 | <a name="output_socket_site_id"></a> [socket\_site\_id](#output\_socket\_site\_id) | The following attributes are exported: |
 | <a name="output_socket_site_serial"></a> [socket\_site\_serial](#output\_socket\_site\_serial) | n/a |

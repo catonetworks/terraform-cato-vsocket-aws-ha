@@ -108,7 +108,7 @@ resource "null_resource" "sleep_300_seconds" {
   provisioner "local-exec" {
     command = "sleep 300"
   }
-  depends_on = [ aws_instance.primary_vsocket ]
+  depends_on = [aws_instance.primary_vsocket]
 }
 
 #################################################################################
@@ -151,8 +151,8 @@ resource "null_resource" "configure_secondary_aws_vsocket" {
 
 # Retrieve Secondary vSocket Virtual Machine serial
 data "cato_accountSnapshotSite" "aws-site-secondary" {
-  depends_on = [ null_resource.configure_secondary_aws_vsocket ]
-  id = cato_socket_site.aws-site.id
+  depends_on = [null_resource.configure_secondary_aws_vsocket]
+  id         = cato_socket_site.aws-site.id
 }
 
 locals {
@@ -164,12 +164,12 @@ resource "null_resource" "sleep_30_seconds" {
   provisioner "local-exec" {
     command = "sleep 30"
   }
-  depends_on = [ data.cato_accountSnapshotSite.aws-site-secondary ]
+  depends_on = [data.cato_accountSnapshotSite.aws-site-secondary]
 }
 
 locals {
   secondary_serial = [for s in data.cato_accountSnapshotSite.aws-site-secondary.info.sockets : s.serial if s.is_primary == false]
-  depends_on = [null_resource.configure_secondary_aws_vsocket]
+  depends_on       = [null_resource.configure_secondary_aws_vsocket]
 }
 
 ## vSocket Instance
@@ -205,4 +205,12 @@ resource "aws_instance" "vSocket_Secondary" {
     Name = "${var.site_name}-vSocket-Secondary"
   })
   depends_on = [null_resource.sleep_30_seconds]
+}
+
+resource "cato_license" "license" {
+  depends_on = [aws_instance.vSocket_Secondary]
+  count      = var.license_id == null ? 0 : 1
+  site_id    = cato_socket_site.aws-site.id
+  license_id = var.license_id
+  bw         = var.license_bw == null ? null : var.license_bw
 }
