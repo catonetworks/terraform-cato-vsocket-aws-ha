@@ -11,7 +11,7 @@
 - Updating readme to reflect all module vars
 - Fixing vars to reflect required paerams correctly
 
-## 0.0.4 (2024-05-07)
+## 0.0.5 (2024-05-07)
 
 ### Features
 - Added optional license resource and inputs used for commercial site deployments
