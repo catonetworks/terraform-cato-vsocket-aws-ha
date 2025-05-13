@@ -14,9 +14,20 @@ data "cato_accountSnapshotSite" "aws-site" {
   id = cato_socket_site.aws-site.id
 }
 
+locals {
+  sanitized_name = replace(replace(replace(replace(replace(replace(
+    var.site_name,
+    "/", ""),
+    ":", ""),
+    "#", ""),
+    "(", ""),
+    ")", ""),
+  " ", "-")
+}
+
 # AWS HA IAM role configuration
 resource "aws_iam_role" "cato_ha_role" {
-  name        = "Cato-HA-Role"
+  name        = "Cato-HA-Role-${local.sanitized_name}"
   description = "To allow vSocket HA route management"
   assume_role_policy = jsonencode({
     Version = "2012-10-17",
@@ -31,7 +42,7 @@ resource "aws_iam_role" "cato_ha_role" {
 }
 
 resource "aws_iam_policy" "cato_ha_policy" {
-  name = "Cato-HA-Role-Policy"
+  name = "Cato-HA-Role-Policy-${local.sanitized_name}"
   policy = jsonencode({
     Version = "2012-10-17",
     Statement = [

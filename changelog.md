@@ -21,3 +21,8 @@
 ### Features
 - Removing unnecessary region variable
 
+## 0.0.7 (2024-05-13)
+
+### Features
+- Updating iam role name creation to be unique with site name, filtering out invalid characters
+
