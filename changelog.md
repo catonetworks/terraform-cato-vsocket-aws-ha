@@ -16,3 +16,8 @@
 ### Features
 - Added optional license resource and inputs used for commercial site deployments
 
+## 0.0.6 (2024-05-12)
+
+### Features
+- Removing unnecessary region variable
+
