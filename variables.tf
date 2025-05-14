@@ -182,4 +182,3 @@ variable "license_bw" {
   type        = string
   default     = null
 }
-
