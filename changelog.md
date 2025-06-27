@@ -27,3 +27,14 @@
 - Updating iam role name creation to be unique with site name, filtering out invalid characters
 - Reordered sleep null resources to better accommodate deployment of second instance
 
+## 0.0.9 (2024-06-27)
+
+### Features 
+- Refactored module to use templated api calls with `terraform_data` 
+- Updated ec2 call for vSockets to use `user_data_base64` and `gp3` type disks
+- Separated code into separate files, `data.tf`, `locals.tf` 
+- Updated modules with `site_location.tf` to dynamically determine site_location based on AWS region 
+- Set module to use `routed_networks` to enable network creation 
+- removed unused variables 
+- updated README with additional verbiage
+- Updated outputs with descriptions 

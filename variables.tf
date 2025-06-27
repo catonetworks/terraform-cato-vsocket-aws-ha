@@ -7,11 +7,17 @@ variable "baseurl" {
 variable "token" {
   description = "Cato API token"
   type        = string
+  # sensitive = true
 }
 
 variable "account_id" {
   description = "Cato account ID"
   type        = number
+}
+
+variable "region" {
+  description = "AWS Region in Which this is being deployed"
+  type        = string
 }
 
 ## vSocket Module Varibables
@@ -52,15 +58,20 @@ variable "site_type" {
 }
 
 variable "site_location" {
-  description = "The location of the site, used for timezone and geolocation.  Use the Cato CLI to get the list of locations. []()"
+  description = "Site location which is used by the Cato Socket to connect to the closest Cato PoP. If not specified, the location will be derived from the Azure region dynamicaly."
   type = object({
     city         = string
     country_code = string
     state_code   = string
     timezone     = string
   })
+  default = {
+    city         = null
+    country_code = null
+    state_code   = null ## Optional - for countries with states
+    timezone     = null
+  }
 }
-
 ## Virtual Socket Variables
 variable "vpc_id" {
   description = "VPC ID"
@@ -82,7 +93,7 @@ variable "ebs_disk_size" {
 variable "ebs_disk_type" {
   description = "Size of disk"
   type        = string
-  default     = "gp2"
+  default     = "gp3"
 }
 
 variable "instance_type" {
@@ -181,4 +192,18 @@ variable "license_bw" {
   description = "The license bandwidth number for the cato site, specifying bandwidth ONLY applies for pooled licenses.  For a standard site license that is not pooled, leave this value null. Must be a number greater than 0 and an increment of 10."
   type        = string
   default     = null
+}
+
+variable "routed_networks" {
+  description = <<EOF
+  A map of routed networks to be accessed behind the vSocket site. The key is the network name and the value is the CIDR range.
+  Example: 
+  routed_networks = {
+  "Peered-VNET-1" = "10.100.1.0/24"
+  "On-Prem-Network" = "192.168.50.0/24"
+  "Management-Subnet" = "10.100.2.0/25"
+  }
+  EOF
+  type        = map(string)
+  default     = {} # Default to an empty map instead of null.
 }
