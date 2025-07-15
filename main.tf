@@ -6,24 +6,8 @@ resource "cato_socket_site" "aws-site" {
     native_network_range = var.native_network_range_primary
     local_ip             = var.lan_local_primary_ip
   }
-  site_location = var.site_location
+  site_location = local.cur_site_location
   site_type     = var.site_type
-}
-
-data "cato_accountSnapshotSite" "aws-site-primary" {
-  id = cato_socket_site.aws-site.id
-}
-
-locals {
-  primary_serial = [for s in data.cato_accountSnapshotSite.aws-site-primary.info.sockets : s.serial if s.is_primary == true]
-  sanitized_name = replace(replace(replace(replace(replace(replace(
-    var.site_name,
-    "/", ""),
-    ":", ""),
-    "#", ""),
-    "(", ""),
-    ")", ""),
-  " ", "-")
 }
 
 # AWS HA IAM role configuration
@@ -70,24 +54,13 @@ resource "aws_iam_instance_profile" "cato_ha_instance_profile" {
   role = aws_iam_role.cato_ha_role.name
 }
 
-## Lookup data from region and VPC
-data "aws_ami" "vsocket" {
-  most_recent = true
-  name_regex  = "VSOCKET_AWS"
-  owners      = ["aws-marketplace"]
-}
-
-data "aws_availability_zones" "available" {
-  state = "available"
-}
-
 # Create Primary vSocket Virtual Machine
 resource "aws_instance" "primary_vsocket" {
   tenancy              = "default"
   ami                  = data.aws_ami.vsocket.id
   key_name             = var.key_pair
   instance_type        = var.instance_type
-  user_data            = base64encode(local.primary_serial[0])
+  user_data_base64     = base64encode(local.primary_serial[0])
   iam_instance_profile = aws_iam_instance_profile.cato_ha_instance_profile.name
   # Network Interfaces
   # MGMTENI
@@ -125,39 +98,34 @@ resource "null_resource" "sleep_300_seconds" {
 
 #################################################################################
 # Add secondary socket to site via API until socket_site resource is updated to natively support
-resource "null_resource" "configure_secondary_aws_vsocket" {
+resource "terraform_data" "configure_secondary_aws_vsocket" {
   depends_on = [null_resource.sleep_300_seconds]
 
-  provisioner "local-exec" {
-    command = <<EOF
-      # Execute the GraphQL mutation to get add the secondary vSocket
-      response=$(curl -k -X POST \
-        -H "Accept: application/json" \
-        -H "Content-Type: application/json" \
-        -H "x-API-Key: ${var.token}" \
-        "${var.baseurl}" \
-        --data '{
-          "query": "mutation siteAddSecondaryAwsVSocket($accountId: ID!, $addSecondaryAwsVSocketInput: AddSecondaryAwsVSocketInput!) { site(accountId: $accountId) { addSecondaryAwsVSocket(input: $addSecondaryAwsVSocketInput) { id } } }",
-          "variables": {
-            "accountId": "${var.account_id}",
-            "addSecondaryAwsVSocketInput": {
-              "eniIpAddress": "${var.lan_local_secondary_ip}",
-              "eniIpSubnet": "${var.native_network_range_secondary}",
-               "routeTableId": "${var.lan_route_table_id}",
-              "site": {
-                "by": "ID",
-                "input": "${cato_socket_site.aws-site.id}"
-              }
-            }
-          },
-          "operationName": "siteAddSecondaryAwsVSocket"
-        }' )
-    EOF
+  # The `input` block serves as the trigger for this resource.
+  # If any of these values change, Terraform will replace the resource,
+  # causing the provisioner to run again. This is the modern replacement
+  # for the `triggers` argument in null_resource.
+  input = {
+    account_id     = var.account_id
+    site_id        = cato_socket_site.aws-site.id
+    eni_ip_address = var.lan_local_secondary_ip
+    eni_ip_subnet  = var.native_network_range_secondary
+    route_table_id = var.lan_route_table_id
   }
 
-  triggers = {
-    account_id = var.account_id
-    site_id    = cato_socket_site.aws-site.id
+  provisioner "local-exec" {
+    # The command is now cleaner. It calls the curl command and uses the
+    # templatefile() function to dynamically generate the JSON payload from
+    # an external template file. This avoids the large, hard-to-read heredoc.
+    command = templatefile("${path.module}/templates/secondary_socket_payload.json.tftpl", {
+      account_id     = self.input.account_id,
+      site_id        = self.input.site_id,
+      eni_ip_address = self.input.eni_ip_address,
+      eni_ip_subnet  = self.input.eni_ip_subnet,
+      route_table_id = self.input.route_table_id
+      api_token      = var.token
+      baseurl        = var.baseurl
+    })
   }
 }
 
@@ -166,18 +134,7 @@ resource "null_resource" "sleep_30_seconds" {
   provisioner "local-exec" {
     command = "sleep 30"
   }
-  depends_on = [null_resource.configure_secondary_aws_vsocket]
-}
-
-# Retrieve Secondary vSocket Virtual Machine serial
-data "cato_accountSnapshotSite" "aws-site-secondary" {
-  depends_on = [null_resource.sleep_30_seconds]
-  id         = cato_socket_site.aws-site.id
-}
-
-locals {
-  secondary_serial = [for s in data.cato_accountSnapshotSite.aws-site-secondary.info.sockets : s.serial if s.is_primary == false]
-  depends_on       = [data.cato_accountSnapshotSite.aws-site-secondary]
+  depends_on = [terraform_data.configure_secondary_aws_vsocket]
 }
 
 ## vSocket Instance
@@ -186,7 +143,7 @@ resource "aws_instance" "secondary_vsocket" {
   ami                  = data.aws_ami.vsocket.id
   key_name             = var.key_pair
   instance_type        = var.instance_type
-  user_data            = base64encode(local.secondary_serial[0])
+  user_data_base64     = base64encode(local.secondary_serial[0])
   iam_instance_profile = aws_iam_instance_profile.cato_ha_instance_profile.name
   # Network Interfaces
   # MGMTENI
@@ -223,15 +180,19 @@ resource "null_resource" "sleep_300_seconds-HA" {
   depends_on = [aws_instance.secondary_vsocket]
 }
 
-data "cato_accountSnapshotSite" "aws-site-2" {
-  id         = cato_socket_site.aws-site.id
-  depends_on = [null_resource.sleep_300_seconds-HA]
-}
-
 resource "cato_license" "license" {
   depends_on = [aws_instance.secondary_vsocket]
   count      = var.license_id == null ? 0 : 1
   site_id    = cato_socket_site.aws-site.id
   license_id = var.license_id
   bw         = var.license_bw == null ? null : var.license_bw
+}
+
+resource "cato_network_range" "routedNetworks" {
+  for_each   = var.routed_networks
+  site_id    = cato_socket_site.aws-site.id
+  name       = each.key # The name is the key from the map item.
+  range_type = "Routed"
+  subnet     = each.value # The subnet is the value from the map item.
+  depends_on = [data.cato_accountSnapshotSite.aws-site-2]
 }

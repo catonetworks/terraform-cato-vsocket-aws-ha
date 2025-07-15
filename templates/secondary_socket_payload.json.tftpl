@@ -1,0 +1,21 @@
+response=$(curl -v -k -X POST \
+  -H "Accept: application/json" \
+  -H "Content-Type: application/json" \
+  -H "x-API-Key: ${api_token}" \
+  "${baseurl}" \
+  --data '{
+    "query": "mutation siteAddSecondaryAwsVSocket($accountId: ID!, $addSecondaryAwsVSocketInput: AddSecondaryAwsVSocketInput!) { site(accountId: $accountId) { addSecondaryAwsVSocket(input: $addSecondaryAwsVSocketInput) { id } } }",
+    "variables": {
+      "accountId": "${account_id}",
+      "addSecondaryAwsVSocketInput": {
+        "eniIpAddress": "${eni_ip_address}",
+        "eniIpSubnet": "${eni_ip_subnet}",
+        "routeTableId": "${route_table_id}",
+        "site": {
+          "by": "ID",
+          "input": "${site_id}"
+        }
+      }
+    },
+"operationName": "siteAddSecondaryAwsVSocket"
+}' )
