@@ -38,3 +38,9 @@
 - removed unused variables 
 - updated README with additional verbiage
 - Updated outputs with descriptions 
+
+## 0.0.10 (2025-07-16)
+
+### Features
+ - Update Site_Location to Latest Revision
+ - Version Lock Cato Provider to 0.0.30 or Greater
