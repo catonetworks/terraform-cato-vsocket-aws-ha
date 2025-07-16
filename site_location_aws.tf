@@ -55,7 +55,7 @@ locals {
     "us-gov-west-1" = { city = "Boardman", state = "Oregon", country = "United States", timezone = "UTC-8" }
 
     # North America - Canada
-    "ca-central-1" = { city = "Montr\u00c3\u00a9al", state = null, country = "Canada", timezone = "UTC-5" }
+    "ca-central-1" = { city = "Montréal", state = null, country = "Canada", timezone = "UTC-5" }
     "ca-west-1"    = { city = "Calgary", state = null, country = "Canada", timezone = "UTC-7" }
 
     # North America - Mexico
@@ -63,7 +63,7 @@ locals {
 
     # Europe
     "eu-central-1" = { city = "Frankfurt (Oder)", state = null, country = "Germany", timezone = "UTC+1" }
-    "eu-central-2" = { city = "Z\u00c3\u00bcrich", state = null, country = "Switzerland", timezone = "UTC+1" }
+    "eu-central-2" = { city = "Zürich", state = null, country = "Switzerland", timezone = "UTC+1" }
     "eu-west-1"    = { city = "Dublin", state = null, country = "Ireland", timezone = "UTC+0" }
     "eu-west-2"    = { city = "London", state = null, country = "United Kingdom", timezone = "UTC+0" }
     "eu-west-3"    = { city = "Paris", state = null, country = "France", timezone = "UTC+1" }
@@ -95,7 +95,7 @@ locals {
     "af-south-1" = { city = "Cape Town", state = null, country = "South Africa", timezone = "UTC+2" }
 
     # South America
-    "sa-east-1" = { city = "S\u00c3\u00a3o Paulo", state = "S\u00c3\u00a3o Paulo", country = "Brazil", timezone = "UTC-3" }
+    "sa-east-1" = { city = "São Paulo", state = "São Paulo", country = "Brazil", timezone = "UTC-3" }
 
     # China (Isolated regions)
     "cn-north-1"     = { city = "Beijing", state = null, country = "China", timezone = "UTC+8" }
