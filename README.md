@@ -57,14 +57,18 @@ module "vsocket-aws-ha" {
   lan_route_table_id             = "rtb-xxxxxxxxxxxxxxxx"
   # site location is derived from AWS Region 
 
-    routed_networks = {
-    "Peered-VPC-1" = "10.100.1.0/24"
-    "App-VPC"      = "10.100.3.0/24"
-    "DatabaseVPC"  = "10.100.2.0/24"
+  routed_networks = {
+    "Peered-VNET-1" = {
+      subnet = "10.100.1.0/24"
+      # interface_index is omitted, so it will default to "LAN1".
+    }
+    "Management-Subnet" = {
+      subnet          = "10.100.2.0/25"
+      interface_index = "LAN2" # Overriding the default value.
+    }
   }
-
-
-  tags                           = {
+  
+  tags = {
     TagName1  = "Tag Value 1"
     TagName2  = "Tag Value 2"
   }
@@ -119,14 +123,14 @@ Apache 2 Licensed. See [LICENSE](https://github.com/catonetworks/terraform-cato-
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.98.0 |
-| <a name="requirement_cato"></a> [cato](#requirement\_cato) | >= 0.0.30 |
+| <a name="requirement_cato"></a> [cato](#requirement\_cato) | >= 0.0.38 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
 | <a name="provider_aws"></a> [aws](#provider\_aws) | >= 5.98.0 |
-| <a name="provider_cato"></a> [cato](#provider\_cato) | >= 0.0.30 |
+| <a name="provider_cato"></a> [cato](#provider\_cato) | >= 0.0.38 |
 | <a name="provider_null"></a> [null](#provider\_null) | n/a |
 | <a name="provider_terraform"></a> [terraform](#provider\_terraform) | n/a |
 
@@ -184,7 +188,7 @@ No modules.
 | <a name="input_native_network_range_primary"></a> [native\_network\_range\_primary](#input\_native\_network\_range\_primary) | Choose the unique network range your vpc is configured with for your socket that does not conflict with the rest of your Wide Area Network.<br/>    The accepted input format is Standard CIDR Notation, e.g. X.X.X.X/X | `string` | n/a | yes |
 | <a name="input_native_network_range_secondary"></a> [native\_network\_range\_secondary](#input\_native\_network\_range\_secondary) | Choose the unique network range your vpc is configured with for your socket that does not conflict with the rest of your Wide Area Network.<br/>    The accepted input format is Standard CIDR Notation, e.g. X.X.X.X/X | `string` | n/a | yes |
 | <a name="input_region"></a> [region](#input\_region) | AWS Region in Which this is being deployed | `string` | n/a | yes |
-| <a name="input_routed_networks"></a> [routed\_networks](#input\_routed\_networks) | A map of routed networks to be accessed behind the vSocket site. The key is the network name and the value is the CIDR range.<br/>  Example: <br/>  routed\_networks = {<br/>  "Peered-VNET-1" = "10.100.1.0/24"<br/>  "On-Prem-Network" = "192.168.50.0/24"<br/>  "Management-Subnet" = "10.100.2.0/25"<br/>  } | `map(string)` | `{}` | no |
+| <a name="input_routed_networks"></a> [routed\_networks](#input\_routed\_networks) | A map of routed networks to be accessed behind the vSocket site.<br/>  The key is the network name. The value is an object with the following attributes:<br/>  - subnet (string, required): The CIDR range of the network.<br/>  - interface\_index (string, optional): The site interface the network is connected to. Defaults to "LAN1". | <pre>map(object({<br/>    subnet          = string<br/>    interface_index = optional(string, "LAN1")<br/>  }))</pre> | `{}` | no |
 | <a name="input_site_description"></a> [site\_description](#input\_site\_description) | Site description | `string` | n/a | yes |
 | <a name="input_site_location"></a> [site\_location](#input\_site\_location) | Site location which is used by the Cato Socket to connect to the closest Cato PoP. If not specified, the location will be derived from the Azure region dynamicaly. | <pre>object({<br/>    city         = string<br/>    country_code = string<br/>    state_code   = string<br/>    timezone     = string<br/>  })</pre> | <pre>{<br/>  "city": null,<br/>  "country_code": null,<br/>  "state_code": null,<br/>  "timezone": null<br/>}</pre> | no |
 | <a name="input_site_name"></a> [site\_name](#input\_site\_name) | Your Cato Site Name Here | `string` | n/a | yes |
