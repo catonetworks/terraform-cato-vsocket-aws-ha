@@ -196,14 +196,14 @@ variable "license_bw" {
 
 variable "routed_networks" {
   description = <<EOF
-  A map of routed networks to be accessed behind the vSocket site. The key is the network name and the value is the CIDR range.
-  Example: 
-  routed_networks = {
-  "Peered-VNET-1" = "10.100.1.0/24"
-  "On-Prem-Network" = "192.168.50.0/24"
-  "Management-Subnet" = "10.100.2.0/25"
-  }
+  A map of routed networks to be accessed behind the vSocket site.
+  The key is the network name. The value is an object with the following attributes:
+  - subnet (string, required): The CIDR range of the network.
+  - interface_index (string, optional): The site interface the network is connected to. Defaults to "LAN1".
   EOF
-  type        = map(string)
-  default     = {} # Default to an empty map instead of null.
+  type = map(object({
+    subnet          = string
+    interface_index = optional(string, "LAN1")
+  }))
+  default = {}
 }
