@@ -51,3 +51,7 @@
  - Updated to use latest provider version 
   - Adjusted routed_networks call to include interface_index 
  - Version Lock to Provider version 0.0.38 or greater
+
+## 0.0.12 (2026-02-18)
+### Features
+- Reverted to provider version 0.0.57 to address local_ip and gateway api param issue in state
