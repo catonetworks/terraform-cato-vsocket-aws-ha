@@ -55,3 +55,7 @@
 ## 0.0.12 (2026-02-18)
 ### Features
 - Reverted to provider version 0.0.57 to address local_ip and gateway api param issue in state
+
+## 0.0.13 (2026-03-12)
+### Features
+- Updated instances to encrypt drive, and migrated to new convention of attaching interfaces.
