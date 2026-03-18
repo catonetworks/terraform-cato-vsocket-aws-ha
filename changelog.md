@@ -59,3 +59,8 @@
 ## 0.0.13 (2026-03-12)
 ### Features
 - Updated instances to encrypt drive, and migrated to new convention of attaching interfaces.
+
+## 0.0.14 (2026-03-19)
+### Features
+- Updated reboot and sleep function sequence to fix issue introduced by migration to new interface attachment convention 
+
