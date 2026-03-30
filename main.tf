@@ -76,6 +76,10 @@ resource "aws_instance" "primary_vsocket" {
   tags = merge(var.tags, {
     Name = "${var.site_name}-vSocket-Primary"
   })
+   
+  lifecycle {
+    ignore_changes = [ami]
+  }
 }
 
 # WANENI
@@ -177,6 +181,10 @@ resource "aws_instance" "secondary_vsocket" {
   tags = merge(var.tags, {
     Name = "${var.site_name}-vSocket-Secondary"
   })
+   
+  lifecycle {
+    ignore_changes = [ami]
+  }
   depends_on = [null_resource.sleep_30_seconds]
 }
 

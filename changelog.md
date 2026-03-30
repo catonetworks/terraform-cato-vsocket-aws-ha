@@ -64,3 +64,7 @@
 ### Features
 - Updated reboot and sleep function sequence to fix issue introduced by migration to new interface attachment convention 
 
+## 0.0.16 (2026-03-30)
+
+### Features
+- Update module adding lifecycle.ignore_changes for ami on socket instance
