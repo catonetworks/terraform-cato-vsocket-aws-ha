@@ -68,3 +68,7 @@
 
 ### Features
 - Update module adding lifecycle.ignore_changes for ami on socket instance
+
+## 0.0.17 (2026-04-10)
+### Features
+- Updated version of provider adding in lastest SDK with updated ENUM values for accounSnapshot and license
