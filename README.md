@@ -14,7 +14,7 @@ terraform {
   required_providers {
     cato = {
       source = "catonetworks/cato"
-      version = "0.0.57-1"
+      version = ">= 0.0.88"
     }
     aws = {
       source  = "hashicorp/aws"
@@ -165,9 +165,9 @@ No modules.
 | [aws_network_interface_attachment.lan-secondary-int](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/network_interface_attachment) | resource |
 | [aws_network_interface_attachment.wan-primary-int](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/network_interface_attachment) | resource |
 | [aws_network_interface_attachment.wan-secondary-int](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/network_interface_attachment) | resource |
-| [cato_license.license](https://registry.terraform.io/providers/catonetworks/cato/0.0.57-1/docs/resources/license) | resource |
-| [cato_network_range.routedNetworks](https://registry.terraform.io/providers/catonetworks/cato/0.0.57-1/docs/resources/network_range) | resource |
-| [cato_socket_site.aws-site](https://registry.terraform.io/providers/catonetworks/cato/0.0.57-1/docs/resources/socket_site) | resource |
+| [cato_license.license](https://registry.terraform.io/providers/catonetworks/cato/0.0.88/docs/resources/license) | resource |
+| [cato_network_range.routedNetworks](https://registry.terraform.io/providers/catonetworks/cato/0.0.88/docs/resources/network_range) | resource |
+| [cato_socket_site.aws-site](https://registry.terraform.io/providers/catonetworks/cato/0.0.88/docs/resources/socket_site) | resource |
 | [null_resource.primary_reboot_once](https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource) | resource |
 | [null_resource.secondary_reboot_once](https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource) | resource |
 | [null_resource.sleep_300_seconds-HA](https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource) | resource |
@@ -176,10 +176,10 @@ No modules.
 | [terraform_data.configure_secondary_aws_vsocket](https://registry.terraform.io/providers/hashicorp/terraform/latest/docs/resources/data) | resource |
 | [aws_ami.vsocket](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ami) | data source |
 | [aws_availability_zones.available](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/availability_zones) | data source |
-| [cato_accountSnapshotSite.aws-site-2](https://registry.terraform.io/providers/catonetworks/cato/0.0.57-1/docs/data-sources/accountSnapshotSite) | data source |
-| [cato_accountSnapshotSite.aws-site-primary](https://registry.terraform.io/providers/catonetworks/cato/0.0.57-1/docs/data-sources/accountSnapshotSite) | data source |
-| [cato_accountSnapshotSite.aws-site-secondary](https://registry.terraform.io/providers/catonetworks/cato/0.0.57-1/docs/data-sources/accountSnapshotSite) | data source |
-| [cato_siteLocation.site_location](https://registry.terraform.io/providers/catonetworks/cato/0.0.57-1/docs/data-sources/siteLocation) | data source |
+| [cato_accountSnapshotSite.aws-site-2](https://registry.terraform.io/providers/catonetworks/cato/0.0.88/docs/data-sources/accountSnapshotSite) | data source |
+| [cato_accountSnapshotSite.aws-site-primary](https://registry.terraform.io/providers/catonetworks/cato/0.0.88/docs/data-sources/accountSnapshotSite) | data source |
+| [cato_accountSnapshotSite.aws-site-secondary](https://registry.terraform.io/providers/catonetworks/cato/0.0.88/docs/data-sources/accountSnapshotSite) | data source |
+| [cato_siteLocation.site_location](https://registry.terraform.io/providers/catonetworks/cato/0.0.88/docs/data-sources/siteLocation) | data source |
 
 ## Inputs
 
