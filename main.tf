@@ -76,7 +76,7 @@ resource "aws_instance" "primary_vsocket" {
   tags = merge(var.tags, {
     Name = "${var.site_name}-vSocket-Primary"
   })
-   
+
   lifecycle {
     ignore_changes = [ami]
   }
@@ -136,6 +136,10 @@ resource "terraform_data" "configure_secondary_aws_vsocket" {
   }
 
   provisioner "local-exec" {
+    environment = {
+      CATO_TOKEN = var.token
+      BASEURL    = var.baseurl
+    }
     # The command is now cleaner. It calls the curl command and uses the
     # templatefile() function to dynamically generate the JSON payload from
     # an external template file. This avoids the large, hard-to-read heredoc.
@@ -145,8 +149,6 @@ resource "terraform_data" "configure_secondary_aws_vsocket" {
       eni_ip_address = self.input.eni_ip_address,
       eni_ip_subnet  = self.input.eni_ip_subnet,
       route_table_id = self.input.route_table_id
-      api_token      = var.token
-      baseurl        = var.baseurl
     })
   }
 }
@@ -181,7 +183,7 @@ resource "aws_instance" "secondary_vsocket" {
   tags = merge(var.tags, {
     Name = "${var.site_name}-vSocket-Secondary"
   })
-   
+
   lifecycle {
     ignore_changes = [ami]
   }

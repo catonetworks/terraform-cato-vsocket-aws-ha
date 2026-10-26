@@ -1,8 +1,8 @@
 response=$(curl -v -k -X POST \
   -H "Accept: application/json" \
   -H "Content-Type: application/json" \
-  -H "x-API-Key: ${api_token}" \
-  "${baseurl}" \
+  -H "x-API-Key: $CATO_TOKEN" \
+  "$BASEURL" \
   --data '{
     "query": "mutation siteAddSecondaryAwsVSocket($accountId: ID!, $addSecondaryAwsVSocketInput: AddSecondaryAwsVSocketInput!) { site(accountId: $accountId) { addSecondaryAwsVSocket(input: $addSecondaryAwsVSocketInput) { id } } }",
     "variables": {
